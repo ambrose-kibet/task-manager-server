@@ -31,6 +31,7 @@ import { GithubOauthGuard } from './guards/github-auth.guard';
 import { RegisterUserDto } from './Dtos/register-user.dto';
 import { VerifyQueryDto } from './Dtos/verify-query.dto';
 import { ForgotPasswordDto } from './Dtos/forgot-password.dto';
+import { PasswordResetDto } from './Dtos/password-reset.dto';
 
 @Controller('auth')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -40,8 +41,8 @@ export class AuthController {
     private readonly userService: UserService,
   ) {}
 
-  @HttpCode(201)
   @Post('register')
+  @HttpCode(201)
   async register(@Body() registrationData: RegisterUserDto) {
     return this.authService.register(registrationData);
   }
@@ -51,9 +52,10 @@ export class AuthController {
     return this.authService.verifyEmail(query.token);
   }
 
-  @HttpCode(200)
-  @UseGuards(LocalAuthenticationGuard)
   @Post('login')
+  @HttpCode(200)
+  @SerializeData(AuthResponseDto)
+  @UseGuards(LocalAuthenticationGuard)
   async login(
     @Req() request: RequestWithUser,
     @Res({ passthrough: true }) res: Response, // REMEMBER USE THIS TO BE PLATFORM AGNOSTIC?
@@ -72,8 +74,8 @@ export class AuthController {
     // Initiates the Google OAuth2 login flow
   }
 
-  @UseGuards(GoogleOauthGuard)
   @Get('google/callback')
+  @UseGuards(GoogleOauthGuard)
   @SerializeData(AuthResponseDto)
   async googleLoginCallback(
     @Req() request: RequestWithUser,
@@ -93,8 +95,8 @@ export class AuthController {
     // Initiates the Github OAuth2 login flow
   }
 
-  @UseGuards(GithubOauthGuard)
   @Get('github/callback')
+  @UseGuards(GithubOauthGuard)
   @SerializeData(AuthResponseDto)
   async githubLoginCallback(
     @Req() request: RequestWithUser,
@@ -108,8 +110,9 @@ export class AuthController {
     return user;
   }
 
-  @UseGuards(JwtRefreshGuard)
   @Get('refresh')
+  @SerializeData(AuthResponseDto)
+  @UseGuards(JwtRefreshGuard)
   refresh(
     @Req() request: RequestWithUser,
     @Res({ passthrough: true }) res: Response,
@@ -123,7 +126,12 @@ export class AuthController {
 
   @Post('forgot-password')
   async forgotPassword(@Body() body: ForgotPasswordDto) {
-    return this.authService.forgotPassword(body.email);
+    return await this.authService.forgotPassword(body.email);
+  }
+
+  @Post('reset-password')
+  async resetPassword(@Body() body: PasswordResetDto) {
+    return await this.authService.resetPassword(body.token, body.password);
   }
 
   @UseGuards(JwtAuthenticationGuard)
@@ -136,5 +144,6 @@ export class AuthController {
     await this.userService.removeRefreshToken(request.user.id);
     const cookies = this.authService.getLogOutCookies();
     res.setHeader('Set-Cookie', cookies);
+    return 'Log out successful';
   }
 }

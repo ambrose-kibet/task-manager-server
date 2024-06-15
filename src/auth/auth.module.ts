@@ -7,7 +7,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtRefreshTokenStrategy } from './strategies/jwt-refresh.strategy';
 import { GoogleAuthStrategy } from './strategies/google.strategy';
-import { GithubAuthStrategy } from './strategies/github-auth.strategy';
+import { GithubAuthStrategy } from './strategies/github.strategy';
 import { DatabaseModule } from 'src/database/database.module';
 import { EmailModule } from 'src/email/email.module';
 import { TokenService } from './token.service';
