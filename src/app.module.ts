@@ -6,6 +6,7 @@ import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './auth/auth.module';
 import { EmailModule } from './email/email.module';
 import * as Joi from 'joi'; //DO NOT CONVERT TO DEFAULT IMPORT
+import { FileUploadModule } from './file-upload/file-upload.module';
 
 @Module({
   imports: [
@@ -33,12 +34,16 @@ import * as Joi from 'joi'; //DO NOT CONVERT TO DEFAULT IMPORT
         JWT_EMAIL_EXPIRATION_TIME: Joi.string().required(),
         JWT_PASSWORD_SECRET: Joi.string().required(),
         JWT_PASSWORD_EXPIRATION_TIME: Joi.string().required(),
+        CLOUDINARY_CLOUD_NAME: Joi.string().required(),
+        CLOUDINARY_API_KEY: Joi.string().required(),
+        CLOUDINARY_API_SECRET: Joi.string().required(),
       }),
       isGlobal: true,
     }),
     DatabaseModule,
     AuthModule,
     EmailModule,
+    FileUploadModule,
   ],
   controllers: [],
   providers: [],
