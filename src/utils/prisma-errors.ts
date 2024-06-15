@@ -1,0 +1,1 @@
+export const UNIQUENESS_ERROR_CODE = 'P2002';
