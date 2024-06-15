@@ -3,11 +3,10 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { CreateUserDto } from 'src/user/Dtos/create-user.dto';
 import { UserService } from 'src/user/user.service';
 import { LogInDto } from './Dtos/log-in.dto';
-import { JwtService, TokenExpiredError } from '@nestjs/jwt';
-import { TokenPayload, VerificationTokenPayload } from 'src/utils/types';
+import { JwtService } from '@nestjs/jwt';
+import { TokenPayload } from 'src/utils/types';
 import { RegisterUserDto } from './Dtos/register-user.dto';
 
 import { TokenService } from './token.service';
@@ -39,12 +38,10 @@ export class AuthService {
       if (!isPasswordValid) {
         throw new UnauthorizedException('Invalid credentials');
       }
-      return {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-      };
+      if (!user.isEmailConfirmed) {
+        throw new UnauthorizedException('Email not confirmed');
+      }
+      return user;
     } catch (error) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -60,7 +57,7 @@ export class AuthService {
       secret: process.env.JWT_ACCESS_TOKEN_SECRET,
       expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME,
     });
-    const cookie = `Authentication=${token}; HttpOnly; Path=/; Max-Age=${process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME}`;
+    const cookie = `Authentication=${token}; HttpOnly; Path=/; Max-Age=${process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME}; SameSite=None`;
     return cookie;
   }
 
@@ -72,9 +69,8 @@ export class AuthService {
     });
     //you can also set the secure flag to true if you are using https
     // and the sameSite flag to 'None' if you are using cross-origin requests
-    //change the path to auth/refresh if you are using a different path so that the cookie is sent to the correct path
-    // and that its not sent to every request
-    const cookie = `Refresh=${token}; HttpOnly; Path=/; Max-Age=${process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME}`;
+    const cookie = `Refresh=${token}; HttpOnly; Path=/; Max-Age=${process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME};SameSite=None`;
+
     return {
       cookie,
       token,
@@ -88,7 +84,8 @@ export class AuthService {
   }
 
   async forgotPassword(email: string) {
-    return await this.tokenService.initiatePasswordReset(email);
+    await this.tokenService.initiatePasswordReset(email);
+    return 'Password reset email sent successfully';
   }
 
   async resetPassword(token: string, password: string) {
