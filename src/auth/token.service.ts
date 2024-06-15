@@ -42,16 +42,20 @@ export class TokenService {
         token,
         {
           secret: process.env.JWT_EMAIL_SECRET,
+          ignoreExpiration: true,
         },
       );
       const dbToken = await this.findVerificationToken(email);
-      if (!dbToken) {
+
+      if (!dbToken.token || dbToken.token !== token) {
         throw new UnauthorizedException('Invalid token');
       }
       const user = await this.userService.findUserByEmail(email);
       if (!user) {
         throw new BadRequestException('Invalid token');
       }
+      console.log(user);
+
       if (user.isEmailConfirmed) {
         return 'Email already confirmed';
       }
@@ -60,21 +64,12 @@ export class TokenService {
         await this.handleExpiredToken(token, email);
         throw new BadRequestException('Token expired. New token sent');
       }
+      await this.userService.markEmailAsConfirmed(user.id);
       await this.deleteVerificationToken(token, email);
-      await this.userService.markEmailAsConfirmed(email);
       return 'Email confirmed successfully';
     } catch (error) {
-      if (error instanceof TokenExpiredError) {
-        const { email } = this.jwtService.verify<VerificationTokenPayload>(
-          token,
-          {
-            secret: process.env.JWT_EMAIL_SECRET,
-            ignoreExpiration: true,
-          },
-        );
-        await this.handleExpiredToken(token, email);
-        throw new BadRequestException('Token expired. New token sent');
-      }
+      console.log(error);
+
       throw new BadRequestException('Invalid token');
     }
   }
@@ -88,14 +83,15 @@ export class TokenService {
     return token;
   }
 
-  saveVerificationToken(token: string, email: string) {
-    return this.prisma.verificationToken.create({
+  async saveVerificationToken(token: string, email: string) {
+    const savedToken = await this.prisma.verificationToken.create({
       data: {
         token,
         email,
         expiresAt: new Date(Date.now() + 1000 * 60 * 60),
       },
     });
+    return savedToken;
   }
 
   async deleteVerificationToken(token: string, email: string) {
@@ -108,19 +104,21 @@ export class TokenService {
     if (!tokenDb) {
       return;
     }
-    return this.prisma.verificationToken.delete({
+    const deletedToken = this.prisma.verificationToken.delete({
       where: {
         id: tokenDb.id,
       },
     });
+    return deletedToken;
   }
 
-  findVerificationToken(email: string) {
-    return this.prisma.verificationToken.findFirst({
+  async findVerificationToken(email: string) {
+    const token = await this.prisma.verificationToken.findFirst({
       where: {
         email,
       },
     });
+    return token;
   }
 
   async handleExpiredToken(token: string, email: string) {
@@ -163,7 +161,7 @@ export class TokenService {
   }
 
   async savePasswordResetToken(email: string, token: string) {
-    return this.prisma.passwordResetToken.create({
+    return await this.prisma.passwordResetToken.create({
       data: {
         email,
         token,
@@ -173,7 +171,7 @@ export class TokenService {
   }
 
   async findPasswordResetToken(email: string) {
-    return this.prisma.passwordResetToken.findFirst({
+    return await this.prisma.passwordResetToken.findFirst({
       where: {
         email,
       },
@@ -201,6 +199,7 @@ export class TokenService {
       const { email, token: payloadToken } =
         this.jwtService.verify<PasswordResetTokenPayload>(token, {
           secret: process.env.JWT_PASSWORD_SECRET,
+          ignoreExpiration: true,
         });
 
       const dbToken = await this.findPasswordResetToken(email);
@@ -218,17 +217,6 @@ export class TokenService {
 
       return email;
     } catch (error) {
-      if (error instanceof TokenExpiredError) {
-        const { email } = this.jwtService.verify<VerificationTokenPayload>(
-          token,
-          {
-            secret: process.env.JWT_PASSWORD_SECRET,
-            ignoreExpiration: true,
-          },
-        );
-        await this.handleExpiredPasswordResetToken(token, email);
-        throw new BadRequestException('Token expired. New token sent');
-      }
       throw new BadRequestException('Invalid token');
     }
   }
