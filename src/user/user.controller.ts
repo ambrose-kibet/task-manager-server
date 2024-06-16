@@ -115,6 +115,7 @@ export class UserController {
   }
 
   @Get('signup-stats')
+  @UseGuards(RoleGuard(Role.ADMIN))
   async getSignupStats(
     @Query('duration') duration: 'daily' | 'weekly' | 'monthly',
   ) {

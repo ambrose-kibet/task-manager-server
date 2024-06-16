@@ -10,7 +10,7 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { UNIQUENESS_ERROR_CODE } from 'src/utils/prisma-errors';
 import { UpdateUserDto } from './Dtos/update-user.dto';
 import { UpdatePasswordDto } from './Dtos/update-password.dto';
-import * as bcrypt from 'bcrypt'; // DO NOT CONVERT TO DEFAULT IMPORT
+import * as bcrypt from 'bcrypt';
 import { Prisma, Role, User } from '@prisma/client';
 import { AuthUser } from 'src/utils/types';
 import * as moment from 'moment';
