@@ -32,6 +32,8 @@ import { RegisterUserDto } from './Dtos/register-user.dto';
 import { VerifyQueryDto } from './Dtos/verify-query.dto';
 import { ForgotPasswordDto } from './Dtos/forgot-password.dto';
 import { PasswordResetDto } from './Dtos/password-reset.dto';
+import { TokenService } from './token.service';
+import { AuthTokenDto } from './Dtos/auth-token.dto';
 
 @Controller('auth')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -39,6 +41,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UserService,
+    private readonly tokenService: TokenService,
   ) {}
 
   @Post('register')
@@ -76,17 +79,13 @@ export class AuthController {
 
   @Get('google/callback')
   @UseGuards(GoogleOauthGuard)
-  @SerializeData(AuthResponseDto)
   async googleLoginCallback(
     @Req() request: RequestWithUser,
     @Res({ passthrough: true }) res: Response,
   ) {
     const { user } = request;
-    const accessToken = this.authService.getCookieWithJwtAccessToken(user.id);
-    const refreshToken = this.authService.getCookieWithJwtRefreshToken(user.id);
-    await this.userService.setCurrentRefreshToken(refreshToken.token, user.id);
-    res.setHeader('Set-Cookie', [accessToken, refreshToken.cookie]);
-    return user;
+    const authToken = await this.tokenService.generateAuthToken(user.id);
+    res.redirect(`${process.env.CLIENT_URL}/auth?token=${authToken}`);
   }
 
   @Get('github')
@@ -97,12 +96,22 @@ export class AuthController {
 
   @Get('github/callback')
   @UseGuards(GithubOauthGuard)
-  @SerializeData(AuthResponseDto)
   async githubLoginCallback(
     @Req() request: RequestWithUser,
     @Res({ passthrough: true }) res: Response,
   ) {
     const { user } = request;
+    const authToken = await this.tokenService.generateAuthToken(user.id);
+    res.redirect(`${process.env.CLIENT_URL}/auth?token=${authToken}`);
+  }
+
+  @Post('validate-auth-token')
+  @SerializeData(AuthResponseDto)
+  async validateAuthToken(
+    @Body() body: AuthTokenDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const user = await this.authService.validateAuthToken(body.token);
     const accessToken = this.authService.getCookieWithJwtAccessToken(user.id);
     const refreshToken = this.authService.getCookieWithJwtRefreshToken(user.id);
     await this.userService.setCurrentRefreshToken(refreshToken.token, user.id);
