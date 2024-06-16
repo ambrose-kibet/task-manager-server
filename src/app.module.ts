@@ -37,6 +37,8 @@ import { FileUploadModule } from './file-upload/file-upload.module';
         CLOUDINARY_CLOUD_NAME: Joi.string().required(),
         CLOUDINARY_API_KEY: Joi.string().required(),
         CLOUDINARY_API_SECRET: Joi.string().required(),
+        JWT_AUTH_TOKEN_SECRET: Joi.string().required(),
+        JWT_AUTH_TOKEN_EXPIRATION_TIME: Joi.string().required(),
       }),
       isGlobal: true,
     }),
