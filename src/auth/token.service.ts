@@ -54,8 +54,6 @@ export class TokenService {
       if (!user) {
         throw new BadRequestException('Invalid token');
       }
-      console.log(user);
-
       if (user.isEmailConfirmed) {
         return 'Email already confirmed';
       }
@@ -231,5 +229,79 @@ export class TokenService {
       user.name,
       resetToken,
     );
+  }
+
+  async generateAuthToken(userId: string) {
+    const payload = { userId };
+    const token = this.jwtService.sign(payload, {
+      secret: process.env.JWT_AUTH_TOKEN_SECRET,
+      expiresIn: process.env.JWT_AUTH_TOKEN_EXPIRATION_TIME,
+    });
+    await this.saveAuthToken(token, userId);
+    return token;
+  }
+
+  async saveAuthToken(token: string, userId: string) {
+    return await this.prisma.authToken.create({
+      data: {
+        token,
+        userId,
+        expiresAt: new Date(Date.now() + 1000 * 60 * 2),
+      },
+    });
+  }
+
+  async findAuthToken(token: string, userId: string) {
+    return await this.prisma.authToken.findFirst({
+      where: {
+        token,
+        userId,
+      },
+    });
+  }
+  async deleteAuthToken(token: string, userId: string) {
+    const authToken = await this.prisma.authToken.findFirst({
+      where: {
+        token,
+        userId,
+      },
+    });
+    if (!authToken) {
+      return;
+    }
+    return await this.prisma.authToken.delete({
+      where: {
+        id: authToken.id,
+      },
+    });
+  }
+
+  async verifyAuthToken(token: string) {
+    try {
+      const { userId } = this.jwtService.verify<{ userId: string }>(token, {
+        secret: process.env.JWT_AUTH_TOKEN_SECRET,
+        ignoreExpiration: true,
+      });
+
+      const dbToken = await this.findAuthToken(token, userId);
+      if (!dbToken) {
+        throw new BadRequestException('Invalid token');
+      }
+
+      if (dbToken.expiresAt < new Date()) {
+        await this.deleteAuthToken(token, userId);
+        throw new BadRequestException('Token expired');
+      }
+
+      if (dbToken.token !== token) {
+        throw new BadRequestException('Invalid token');
+      }
+
+      await this.deleteAuthToken(token, userId);
+
+      return userId;
+    } catch (error) {
+      throw new BadRequestException('Invalid token');
+    }
   }
 }
