@@ -51,6 +51,18 @@ export class AuthService {
     return await this.tokenService.verifyEmail(token);
   }
 
+  async validateAuthToken(token: string) {
+    const userId = await this.tokenService.verifyAuthToken(token);
+    if (!userId) {
+      throw new BadRequestException('Invalid token');
+    }
+    const user = await this.userService.findUserById(userId);
+    if (!user) {
+      throw new BadRequestException('Invalid token');
+    }
+    return user;
+  }
+
   getCookieWithJwtAccessToken(userId: string) {
     const payload: TokenPayload = { userId };
     const token = this.jwtService.sign(payload, {
