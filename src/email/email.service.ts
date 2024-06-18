@@ -83,31 +83,12 @@ export class EmailService {
             cellpadding="0"
             style="border-collapse: collapse; border: 1px solid #cccccc"
         >
-            <!-- Header -->
-            <tr
-            style="
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                padding-top: 20px;
-            "
-            >
-            <td
-                class="header"
-                style="background-color: transparent; text-align: center"
-            >
-                <img
-                src="https://res.cloudinary.com/citadell/image/upload/v1717755131/Group_7_3_cvoadb.svg"
-                alt="logo"
-                style="width: 100px"
-                />
-            </td>
-            </tr>
+            <!-- Header --> 
             <tr>
             <td
                 class="header"
                 style="
-                background-color: #e50eded3;
+                background-color: #16a34a;
                 padding: 40px;
                 text-align: center;
                 color: white;
@@ -148,7 +129,7 @@ export class EmailService {
                     <td
                     align="center"
                     style="
-                        background-color: #e50eded3;
+                        background-color: #16a34a;
                         padding: 10px;
                         border-radius: 5px;
                         max-width: 800px;
@@ -184,7 +165,7 @@ export class EmailService {
             <td
                 class="footer"
                 style="
-                background-color: #e50eded3;
+                background-color: #16a34a;
                 padding: 40px;
                 text-align: center;
                 color: white;
@@ -260,30 +241,11 @@ export class EmailService {
             style="border-collapse: collapse; border: 1px solid #cccccc"
           >
             <!-- Header -->
-            <tr
-              style="
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                padding-top: 20px;
-              "
-            >
-              <td
-                class="header"
-                style="background-color: transparent; text-align: center"
-              >
-                <img
-                  src="https://res.cloudinary.com/citadell/image/upload/v1717755131/Group_7_3_cvoadb.svg"
-                  alt="logo"
-                  style="width: 100px"
-                />
-              </td>
-            </tr>
             <tr>
               <td
                 class="header"
                 style="
-                  background-color: #e50eded3;
+                  background-color: #16a34a;
                   padding: 40px;
                   text-align: center;
                   color: white;
@@ -325,7 +287,7 @@ export class EmailService {
                     <td
                       align="center"
                       style="
-                        background-color: #e50eded3;
+                        background-color: #16a34a;
                         padding: 10px;
                         border-radius: 5px;
                         max-width: 800px;
@@ -360,7 +322,7 @@ export class EmailService {
               <td
                 class="footer"
                 style="
-                  background-color: #e50eded3;
+                  background-color: #16a34a;
                   padding: 40px;
                   text-align: center;
                   color: white;
