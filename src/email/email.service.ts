@@ -37,9 +37,11 @@ export class EmailService {
   private populateVerificationEmailTemplate({
     name,
     token,
+    code,
   }: {
     name: string;
     token: string;
+    code: string;
   }): string {
     const year = new Date().getFullYear();
 
@@ -116,6 +118,11 @@ export class EmailService {
 
                 To start exploring the platform, please verify your email
                 address.<br />
+                us
+                Use the code below to verify your email address. <br />
+                <span style="font-size: 32px; font-weight: bold">${code}</span> <br />
+                Using the link below. 
+                <br />
                 This link will expire in 1 hour. <br />
             </td>
             </tr>
@@ -185,8 +192,13 @@ export class EmailService {
     `;
   }
 
-  async sendVerificationEmail(email: string, name: string, token: string) {
-    const html = this.populateVerificationEmailTemplate({ name, token });
+  async sendVerificationEmail(
+    email: string,
+    name: string,
+    token: string,
+    code: string,
+  ) {
+    const html = this.populateVerificationEmailTemplate({ name, code, token });
 
     await this.sendEmail(email, 'Email Verification', html);
   }
