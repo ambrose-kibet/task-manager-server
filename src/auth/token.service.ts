@@ -12,6 +12,7 @@ import {
 import { EmailService } from 'src/email/email.service';
 import { UserService } from 'src/user/user.service';
 import { v4 as uuid } from 'uuid';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class TokenService {
@@ -24,19 +25,21 @@ export class TokenService {
 
   async initiateEmailVerification(email: string, name: string) {
     const verificationToken = this.generateVerificationToken(email);
+    const code = this.generateVerificationCode();
     try {
-      await this.saveVerificationToken(verificationToken, email);
+      await this.saveVerificationToken(verificationToken, email, code);
       await this.emailService.sendVerificationEmail(
         email,
         name,
         verificationToken,
+        code,
       );
     } catch (error) {
       throw new BadRequestException('Error sending email');
     }
   }
 
-  async verifyEmail(token: string) {
+  async verifyEmail(token: string, code: string) {
     try {
       const { email } = this.jwtService.verify<VerificationTokenPayload>(
         token,
@@ -48,7 +51,10 @@ export class TokenService {
       const dbToken = await this.findVerificationToken(email);
 
       if (!dbToken.token || dbToken.token !== token) {
-        throw new UnauthorizedException('Invalid token');
+        throw new BadRequestException('Invalid token');
+      }
+      if (dbToken.code !== code) {
+        throw new BadRequestException('invalid verification code');
       }
       const user = await this.userService.findUserByEmail(email);
       if (!user) {
@@ -81,11 +87,12 @@ export class TokenService {
     return token;
   }
 
-  async saveVerificationToken(token: string, email: string) {
+  async saveVerificationToken(token: string, email: string, code: string) {
     const savedToken = await this.prisma.verificationToken.create({
       data: {
         token,
         email,
+        code,
         expiresAt: new Date(Date.now() + 1000 * 60 * 60),
       },
     });
@@ -122,19 +129,21 @@ export class TokenService {
   async handleExpiredToken(token: string, email: string) {
     await this.deleteVerificationToken(token, email);
     const verificationToken = this.generateVerificationToken(email);
+    const code = this.generateVerificationCode();
     const user = await this.userService.findUserByEmail(email);
-    await this.saveVerificationToken(verificationToken, email);
+    await this.saveVerificationToken(verificationToken, email, code);
     await this.emailService.sendVerificationEmail(
       email,
       user.email,
       verificationToken,
+      code,
     );
   }
 
   async initiatePasswordReset(email: string) {
     const user = await this.userService.findUserByEmail(email);
     if (!user) {
-      throw new BadRequestException('User not found');
+      throw new BadRequestException('Email does not exist');
     }
     const { token, resetToken } = this.generatePasswordResetToken(email);
 
@@ -156,6 +165,10 @@ export class TokenService {
       },
     );
     return { token, resetToken };
+  }
+  generateVerificationCode() {
+    const token = crypto.randomInt(100000, 999999).toString();
+    return token;
   }
 
   async savePasswordResetToken(email: string, token: string) {
@@ -237,18 +250,27 @@ export class TokenService {
       secret: process.env.JWT_AUTH_TOKEN_SECRET,
       expiresIn: process.env.JWT_AUTH_TOKEN_EXPIRATION_TIME,
     });
-    await this.saveAuthToken(token, userId);
-    return token;
+    const dbToken = await this.saveAuthToken(token, userId);
+    return dbToken.token;
   }
 
   async saveAuthToken(token: string, userId: string) {
-    return await this.prisma.authToken.create({
+    const existingToken = await this.prisma.authToken.findFirst({
+      where: {
+        userId,
+      },
+    });
+    if (existingToken) {
+      await this.deleteAuthToken(existingToken.id);
+    }
+    const tokenDb = await this.prisma.authToken.create({
       data: {
         token,
         userId,
         expiresAt: new Date(Date.now() + 1000 * 60 * 2),
       },
     });
+    return tokenDb;
   }
 
   async findAuthToken(token: string, userId: string) {
@@ -259,21 +281,13 @@ export class TokenService {
       },
     });
   }
-  async deleteAuthToken(token: string, userId: string) {
-    const authToken = await this.prisma.authToken.findFirst({
+  async deleteAuthToken(id: string) {
+    const token = await this.prisma.authToken.delete({
       where: {
-        token,
-        userId,
+        id,
       },
     });
-    if (!authToken) {
-      return;
-    }
-    return await this.prisma.authToken.delete({
-      where: {
-        id: authToken.id,
-      },
-    });
+    return token;
   }
 
   async verifyAuthToken(token: string) {
@@ -285,23 +299,24 @@ export class TokenService {
 
       const dbToken = await this.findAuthToken(token, userId);
       if (!dbToken) {
-        throw new BadRequestException('Invalid token');
+        throw new BadRequestException('Invalid token dbToken');
       }
 
       if (dbToken.expiresAt < new Date()) {
-        await this.deleteAuthToken(token, userId);
-        throw new BadRequestException('Token expired');
+        throw new BadRequestException('Token expired expiredAt');
       }
 
       if (dbToken.token !== token) {
-        throw new BadRequestException('Invalid token');
+        throw new BadRequestException('Invalid token  not equal');
       }
 
-      await this.deleteAuthToken(token, userId);
+      const deleted = await this.deleteAuthToken(dbToken.id);
+      console.log(deleted + 'deleted');
 
       return userId;
     } catch (error) {
-      throw new BadRequestException('Invalid token');
+      console.log(error);
+      throw new BadRequestException('Invalid token catch');
     }
   }
 }

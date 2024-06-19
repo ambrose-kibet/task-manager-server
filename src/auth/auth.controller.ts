@@ -50,9 +50,9 @@ export class AuthController {
     return this.authService.register(registrationData);
   }
 
-  @Get('verify')
-  async verify(@Query() query: VerifyQueryDto) {
-    return this.authService.verifyEmail(query.token);
+  @Post('verify')
+  async verify(@Body() body: VerifyQueryDto) {
+    return this.authService.verifyEmail(body);
   }
 
   @Post('login')
@@ -106,6 +106,7 @@ export class AuthController {
   }
 
   @Post('validate-auth-token')
+  @HttpCode(200)
   @SerializeData(AuthResponseDto)
   async validateAuthToken(
     @Body() body: AuthTokenDto,
@@ -144,7 +145,7 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthenticationGuard)
-  @Delete('log-out')
+  @Delete('logout')
   @HttpCode(200)
   async logOut(
     @Req() request: RequestWithUser,
