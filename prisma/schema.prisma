@@ -54,7 +54,6 @@ model AuthToken {
   token     String
   userId    String
   expiresAt DateTime
-  @@unique([userId, token])
 }
 
 model Task {
