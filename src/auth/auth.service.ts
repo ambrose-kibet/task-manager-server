@@ -70,7 +70,7 @@ export class AuthService {
       secret: process.env.JWT_ACCESS_TOKEN_SECRET,
       expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME,
     });
-    const cookie = `Authentication=${token}; HttpOnly; Path=/; Max-Age=${process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME}; SameSite=None; Secure=false`;
+    const cookie = `Authentication=${token}; HttpOnly; Path=/; Expires=${new Date(Date.now() + 1000 * 60)}; SameSite=None; Secure=false`;
     return cookie;
   }
 
@@ -82,7 +82,7 @@ export class AuthService {
     });
     //you can also set the secure flag to true if you are using https
     // and the sameSite flag to 'None' if you are using cross-origin requests
-    const cookie = `Refresh=${token}; HttpOnly; Path=/; Max-Age=${process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME};SameSite=None; Secure=false`; // change secure to true if using https
+    const cookie = `Refresh=${token}; HttpOnly; Path=/; Expires=${new Date(Date.now() + 1000 * 60 * 60 * 24 * 7)};SameSite=None; Secure=false`; // change secure to true if using https
 
     return {
       cookie,
