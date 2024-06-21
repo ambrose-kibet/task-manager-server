@@ -274,12 +274,13 @@ export class TokenService {
   }
 
   async findAuthToken(token: string, userId: string) {
-    return await this.prisma.authToken.findFirst({
+    const dbToken = await this.prisma.authToken.findFirst({
       where: {
         token,
         userId,
       },
     });
+    return dbToken;
   }
   async deleteAuthToken(id: string) {
     const token = await this.prisma.authToken.delete({
@@ -309,10 +310,7 @@ export class TokenService {
       if (dbToken.token !== token) {
         throw new BadRequestException('Invalid token  not equal');
       }
-
-      const deleted = await this.deleteAuthToken(dbToken.id);
-      console.log(deleted + 'deleted');
-
+      await this.deleteAuthToken(dbToken.id);
       return userId;
     } catch (error) {
       console.log(error);
