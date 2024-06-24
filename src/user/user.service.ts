@@ -169,8 +169,45 @@ export class UserService {
     });
   }
 
-  async getAllUsers() {
-    return this.prisma.user.findMany();
+  async getAllUsers({
+    email,
+    page = 1,
+    sortby = 'createdAt asc',
+  }: {
+    page?: number;
+    email?: string;
+    sortby?:
+      | 'email asc'
+      | 'email desc'
+      | 'role asc'
+      | 'role desc'
+      | 'createdAt asc'
+      | 'createdAt desc';
+  }) {
+    const limit = 10;
+    const userQueryObj = {} as any;
+    if (email) {
+      userQueryObj.email = {
+        contains: email,
+      };
+    }
+    const sortObj = {} as any;
+    const [criteria, order] = sortby.split(' ');
+    sortObj[criteria] = order;
+    const users = await this.prisma.user.findMany({
+      where: userQueryObj,
+      orderBy: sortObj,
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+    const totalUsers = await this.prisma.user.count({
+      where: userQueryObj,
+    });
+    return {
+      users,
+      total: totalUsers,
+    };
+    return users;
   }
 
   async getSignUpsStats(duration: 'daily' | 'weekly' | 'monthly') {

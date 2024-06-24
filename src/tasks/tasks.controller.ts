@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -88,8 +89,12 @@ export class TasksController {
     @Body() updateTaskDto: UpdateTaskDto,
     @Param('id') id: number,
   ) {
-    console.log('updateTaskDto', updateTaskDto);
-
     return await this.taskService.updateTask(id, updateTaskDto, req.user);
+  }
+
+  @Delete(':id')
+  @SerializeData(TaskDto)
+  async deleteTask(@Req() req: RequestWithUser, @Param('id') id: number) {
+    return await this.taskService.deleteTask(id, req.user);
   }
 }

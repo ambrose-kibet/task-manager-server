@@ -7,6 +7,10 @@ export class AllUsersResponseDto implements User {
   @Transform(({ value }) => `${value.charAt(0)}****@${value.split('@')[1]}`)
   email: string;
 
+  @Transform(
+    ({ value }) =>
+      `${value.charAt(0)}**** ${value.split(' ')[1].charAt(0)}****`,
+  )
   name: string;
   role: $Enums.Role;
   avatar: string;

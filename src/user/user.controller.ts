@@ -28,6 +28,7 @@ import { UpdatePasswordDto } from './Dtos/update-password.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CustomUploadFileTypeValidator } from 'src/utils/custom-validators/custom-fileType-validator';
 import { CloudinaryService } from 'src/file-upload/cloudinary.service';
+import { UsersQueryDto } from './Dtos/users-query.dto';
 
 @Controller('users')
 @UseGuards(JwtAuthenticationGuard)
@@ -103,8 +104,11 @@ export class UserController {
   @Get()
   @SerializeData(AllUsersResponseDto)
   @UseGuards(RoleGuard(Role.ADMIN))
-  async getAllUsers() {
-    return await this.userService.getAllUsers();
+  async getAllUsers(@Query() query: UsersQueryDto) {
+    return await this.userService.getAllUsers({
+      ...query,
+      page: query.page ? Number(query.page) : 1,
+    });
   }
 
   @Patch(':id/change-role')

@@ -27,22 +27,21 @@ export class TasksService {
     const pageLimit = 10;
     const tasks: TasksByDate[] = await this.prisma.$queryRaw`
         SELECT
-            date_trunc('day', created_at) as date,
+            date,
             JSON_AGG(json_build_object('id', id, 'title', title)) as tasks
         FROM (
             SELECT
+                date_trunc('day', created_at) as date,
                 id,
                 title,
-                created_at
+                ROW_NUMBER() OVER (PARTITION BY date_trunc('day', created_at) ORDER BY created_at DESC) as task_rank
             FROM
                 tasks
             WHERE
                 user_id = ${userId}
-            ORDER BY
-                created_at ASC
-            LIMIT
-                3
-        ) t
+        ) ranked_tasks
+        WHERE
+            task_rank <= 3
         GROUP BY
             date
         ORDER BY
@@ -50,8 +49,9 @@ export class TasksService {
         LIMIT
             ${pageLimit}
         OFFSET
-            ${(page - 1) * pageLimit} 
+            ${(page - 1) * pageLimit}
     `;
+
     const count = await this.prisma.$queryRaw`
         SELECT
             COUNT(DISTINCT date_trunc('day', created_at)) as count
@@ -83,7 +83,6 @@ export class TasksService {
     const titleCondition = title
       ? Prisma.sql`AND title ILIKE ${`%${title}%`}`
       : Prisma.sql``;
-
     // Validate and sanitize the sort variable
     const allowedSortValues = ['ASC', 'DESC'];
     const sanitizedSort = allowedSortValues.includes(sort.toUpperCase())
@@ -282,9 +281,9 @@ export class TasksService {
     const stats: Array<unknown> = await this.prisma.$queryRaw(query);
     const formattedStats = stats.map(
       (stat: { date: string; completed: bigint; total: bigint }) => ({
-        ...stat,
+        date: stat.date,
         completed: Number(stat.completed),
-        total: Number(stat.total),
+        created: Number(stat.total),
       }),
     );
 
