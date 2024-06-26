@@ -23,14 +23,27 @@ import { AuthResponseDto } from 'src/auth/Dtos/auth-response.dto';
 import RoleGuard from 'src/auth/guards/role.guard';
 import { Role } from '@prisma/client';
 import { RequestWithUser } from 'src/auth/request-with-user.interface';
-import { AllUsersResponseDto } from './Dtos/all-users.dto';
+import { AllUsersResponseDto, UsersResponseDto } from './Dtos/all-users.dto';
 import { UpdatePasswordDto } from './Dtos/update-password.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CustomUploadFileTypeValidator } from 'src/utils/custom-validators/custom-fileType-validator';
 import { CloudinaryService } from 'src/file-upload/cloudinary.service';
 import { UsersQueryDto } from './Dtos/users-query.dto';
+import {
+  ApiBody,
+  ApiConsumes,
+  ApiExcludeEndpoint,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import FileUploadDto from './Dtos/file-upload.dto';
 
 @Controller('users')
+@ApiTags('Users')
 @UseGuards(JwtAuthenticationGuard)
 export class UserController {
   constructor(
@@ -39,8 +52,12 @@ export class UserController {
   ) {}
 
   @Patch('update-password')
+  @ApiResponse({
+    status: 200,
+    description: 'Password updated successfully',
+  })
+  @ApiBody({ type: UpdatePasswordDto })
   @HttpCode(200)
-  @SerializeData(AuthResponseDto)
   async updatePassword(
     @Req() req: RequestWithUser,
     @Body() updatePasswordDto: UpdatePasswordDto,
@@ -53,6 +70,16 @@ export class UserController {
   }
 
   @Patch(':id')
+  @ApiResponse({
+    status: 204,
+    description: 'User updated',
+    type: AuthResponseDto,
+  })
+  @ApiNotFoundResponse({ description: 'User not found' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @ApiParam({ name: 'id', type: 'string' })
+  @ApiBody({ type: UpdateUserDto })
+  @HttpCode(204)
   @SerializeData(AuthResponseDto)
   async update(
     @Req() req: RequestWithUser,
@@ -68,8 +95,18 @@ export class UserController {
   }
 
   @Post('update-avatar')
+  @ApiResponse({
+    status: 200,
+    description: 'Avatar updated successfully',
+    type: AuthResponseDto,
+  })
   @SerializeData(AuthResponseDto)
   @UseInterceptors(FileInterceptor('avatar'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'A new avatar for the user',
+    type: FileUploadDto,
+  })
   async updateAvatar(
     @Req() req: RequestWithUser,
     @UploadedFile(
@@ -96,13 +133,24 @@ export class UserController {
   }
 
   @Get('me')
+  @ApiResponse({
+    status: 200,
+    description: 'User details',
+    type: AuthResponseDto,
+  })
   @SerializeData(AuthResponseDto)
   getUser(@Req() req: RequestWithUser) {
     return req.user;
   }
 
   @Get()
-  @SerializeData(AllUsersResponseDto)
+  @ApiResponse({
+    status: 200,
+    description: 'All users',
+    type: UsersResponseDto,
+  })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @SerializeData(UsersResponseDto)
   @UseGuards(RoleGuard(Role.ADMIN))
   async getAllUsers(@Query() query: UsersQueryDto) {
     return await this.userService.getAllUsers({
@@ -112,6 +160,15 @@ export class UserController {
   }
 
   @Patch(':id/change-role')
+  @ApiResponse({
+    status: 204,
+    description: 'Role changed',
+    type: AuthResponseDto,
+  })
+  @ApiNotFoundResponse({ description: 'User not found' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @ApiParam({ name: 'id', type: 'string' })
+  @HttpCode(204)
   @SerializeData(AuthResponseDto)
   @UseGuards(RoleGuard(Role.ADMIN))
   async changeRole(@Param('id') id: string, @Body('role') role: Role) {
@@ -119,6 +176,14 @@ export class UserController {
   }
 
   @Get('signup-stats')
+  @ApiResponse({
+    status: 200,
+    description: 'Get sign up stats',
+  })
+  @ApiQuery({
+    name: 'duration',
+    enum: ['daily', 'weekly', 'monthly'],
+  })
   @UseGuards(RoleGuard(Role.ADMIN))
   async getSignupStats(
     @Query('duration') duration: 'daily' | 'weekly' | 'monthly',
