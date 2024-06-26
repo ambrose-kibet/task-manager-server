@@ -1,73 +1,199 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+<a name="readme-top"></a>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+<div align="center">
+  <br/>
+  <h3><b>Task Manger API </b></h3>
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+</div>
 
-## Description
+<!-- TABLE OF CONTENTS -->
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+# 📗 Table of Contents
 
-## Installation
+- [📖 About the Project](#about-project)
+  - [🛠 Built With](#built-with)
+    - [Tech Stack](#tech-stack)
+    - [Key Features](#key-features)
+  - [🚀 Live Demo](#live-demo)
+- [💻 Getting Started](#getting-started)
+  - [Setup](#setup)
+  - [Prerequisites](#prerequisites)
+  - [Install](#install)
+  - [Usage](#usage)
+- [👥 Authors](#authors)
+- [🔭 Future Features](#future-features)
+- [🤝 Contributing](#contributing)
+- [⭐️ Show your support](#support)
+- [📝 License](#license)
 
-```bash
-$ npm install
+<!-- PROJECT DESCRIPTION -->
+
+# 📖 Task Manager API <a name="about-project"></a>
+
+**Task Manager API** Is a REST API crafted with Nest.js and Postgresql DB . This API allows the user to to add,view, delete tasks and keep track of their productivity.
+
+## 🛠 Built With <a name="built-with"></a>
+
+### Tech Stack <a name="tech-stack"></a>
+
+<details>
+  <summary>Server</summary>
+  <ul>
+    <li><a href="https://docs.nestjs.com/">Nest.js</a></li>
+  </ul>
+</details>
+
+<details>
+<summary>Database</summary>
+  <ul>
+    <li><a href="https://www.postgresql.org/">Postgresql</a></li>
+  </ul>
+</details>
+
+<!-- Features -->
+
+### Key Features <a name="key-features"></a>
+
+- **Create Tasks**
+- **OAuth authentication**
+- **productivity stats**
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- LIVE DEMO -->
+
+## 🚀 Live Docs <a name="live-demo"></a>
+
+- [Live Docs Link](https://chativerse-api.onrender.com/)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- GETTING STARTED -->
+
+## 💻 Getting Started <a name="getting-started"></a>
+
+To get a local copy up and running, follow these steps.
+
+### Prerequisites
+
+In order to run this project you need:
+
+- [ ] NodeJs installed on your computer
+- [ ] Postgresql database
+
+### Setup
+
+Clone this repository to your desired folder:
+
+```sh
+  cd my-folder
+  git https://github.com/ambrose-kibet/task-manager-server.git
 ```
 
-## Running the app
+### Install
 
-```bash
-# development
-$ npm run start
+Install this project with:
 
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+```sh
+  cd task-manager-server
+  npm install
 ```
 
-## Test
+### Prerequisites
 
-```bash
-# unit tests
-$ npm run test
+create a `.env` file at the root of the project with the following vars
 
-# e2e tests
-$ npm run test:e2e
+```ts
 
-# test coverage
-$ npm run test:cov
+DATABASE_URL=//postgres db url
+
+JWT_ACCESS_TOKEN_SECRET=//jwt access  token secret eg'my secret'
+JWT_ACCESS_TOKEN_EXPIRATION_TIME=// jwt access token expiration time eg'45m'
+JWT_REFRESH_TOKEN_SECRET=// jwt refresh  token secret eg'my other secret'
+JWT_REFRESH_TOKEN_EXPIRATION_TIME=// jwt access token expiration time eg'10d'
+
+GOOGLE_CLIENT_ID=//google client id
+GOOGLE_CLIENT_SECRET=//google client secret
+GOOGLE_CALLBACK_URL=//google callback url eg 'http://localhost:3000/auth/google/callback'
+
+GITHUB_CLIENT_ID=//github client id
+GITHUB_CLIENT_SECRET=//github client secret
+GITHUB_CALLBACK_URL=//github callback url eg 'http://localhost:3000/auth/github/callback'
+
+EMAIL_HOST="gmail"
+EMAIL_PORT=587
+EMAIL_USER=//your email
+EMAIL_PASSWORD=// your password
+
+
+
+CLIENT_URL=//client url
+
+JWT_EMAIL_SECRET=//jwt email secret eg "my email secret"
+JWT_EMAIL_EXPIRATION_TIME=//jwt email expiration time eg '30m'
+
+JWT_PASSWORD_SECRET=//jwt password secret eg "my email secret"
+JWT_PASSWORD_EXPIRATION_TIME=//jwt password expiration time eg '30m'
+
+CLOUDINARY_CLOUD_NAME=//cloudinary cloud name
+CLOUDINARY_API_KEY=// cloudinary api key
+CLOUDINARY_API_SECRET=//cloudinary api secret
+
+JWT_AUTH_TOKEN_SECRET=//jwt auth token secret eg "my email secret"
+JWT_AUTH_TOKEN_EXPIRATION_TIME=//jwt auth token expiration time eg '1m'
 ```
 
-## Support
+### Usage
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+To run the project, execute the following command:
 
-## Stay in touch
+```sh
+  npm run start:dev
+```
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+<!-- AUTHORS -->
 
-## License
+## 👥 Authors <a name="authors"></a>
 
-Nest is [MIT licensed](LICENSE).
+👤 **Ambrose kibet**
+
+- GitHub: [ambrose kibet](https://github.com/ambrose-kibet)
+- Twitter: [ambrose kibet](https://twitter.com/ambrose_kibet)
+- LinkedIn: [ambrose kibet](https://www.linkedin.com/in/ambrose-kibet/)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- FUTURE FEATURES -->
+
+## 🔭 Future Features <a name="future-features"></a>
+
+- [ ] **Unit tests**
+- [ ] **E2E tests**
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- CONTRIBUTING -->
+
+## 🤝 Contributing <a name="contributing"></a>
+
+Contributions, issues, and feature requests are welcome!
+
+Feel free to check the [issues page](../../issues/).
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- SUPPORT -->
+
+## ⭐️ Show your support <a name="support"></a>
+
+If you like this project star ⭐️ it.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- LICENSE -->
+
+## 📝 License <a name="license"></a>
+
+This project is [MIT](./LICENSE) licensed.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
