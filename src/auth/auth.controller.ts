@@ -34,8 +34,15 @@ import { ForgotPasswordDto } from './Dtos/forgot-password.dto';
 import { PasswordResetDto } from './Dtos/password-reset.dto';
 import { TokenService } from './token.service';
 import { AuthTokenDto } from './Dtos/auth-token.dto';
+import {
+  ApiBody,
+  ApiExcludeEndpoint,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 @Controller('auth')
+@ApiTags('Auth')
 @UseInterceptors(ClassSerializerInterceptor)
 export class AuthController {
   constructor(
@@ -45,17 +52,30 @@ export class AuthController {
   ) {}
 
   @Post('register')
+  @ApiResponse({
+    status: 201,
+    description:
+      'User registered successfully check  your email for verification',
+  })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiBody({ type: RegisterUserDto })
   @HttpCode(201)
   async register(@Body() registrationData: RegisterUserDto) {
     return this.authService.register(registrationData);
   }
 
   @Post('verify')
+  @ApiResponse({ status: 201, description: 'Email verified successfully' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @HttpCode(201)
   async verify(@Body() body: VerifyQueryDto) {
     return this.authService.verifyEmail(body);
   }
 
   @Post('login')
+  @ApiResponse({ status: 200, description: 'User logged in successfully' })
+  @ApiResponse({ status: 401, description: 'Invalid credentials' })
+  @ApiBody({ type: LogInDto })
   @HttpCode(200)
   @SerializeData(AuthResponseDto)
   @UseGuards(LocalAuthenticationGuard)
@@ -72,12 +92,14 @@ export class AuthController {
   }
 
   @Get('google')
+  @ApiExcludeEndpoint()
   @UseGuards(GoogleOauthGuard)
   googleLogin() {
     // Initiates the Google OAuth2 login flow
   }
 
   @Get('google/callback')
+  @ApiExcludeEndpoint()
   @UseGuards(GoogleOauthGuard)
   async googleLoginCallback(
     @Req() request: RequestWithUser,
@@ -89,12 +111,14 @@ export class AuthController {
   }
 
   @Get('github')
+  @ApiExcludeEndpoint()
   @UseGuards(GithubOauthGuard)
   githubLogin() {
     // Initiates the Github OAuth2 login flow
   }
 
   @Get('github/callback')
+  @ApiExcludeEndpoint()
   @UseGuards(GithubOauthGuard)
   async githubLoginCallback(
     @Req() request: RequestWithUser,
@@ -106,6 +130,7 @@ export class AuthController {
   }
 
   @Post('validate-auth-token')
+  @ApiExcludeEndpoint()
   @HttpCode(200)
   @SerializeData(AuthResponseDto)
   async validateAuthToken(
@@ -135,18 +160,28 @@ export class AuthController {
   }
 
   @Post('forgot-password')
+  @ApiResponse({ status: 201, description: 'Password reset email sent' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @HttpCode(201)
+  @ApiBody({ type: ForgotPasswordDto })
   async forgotPassword(@Body() body: ForgotPasswordDto) {
     return await this.authService.forgotPassword(body.email);
   }
 
   @Post('reset-password')
+  @ApiResponse({ status: 200, description: 'Password reset successful' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @HttpCode(200)
+  @ApiBody({ type: PasswordResetDto })
   async resetPassword(@Body() body: PasswordResetDto) {
     return await this.authService.resetPassword(body.token, body.password);
   }
 
-  @UseGuards(JwtAuthenticationGuard)
   @Delete('logout')
+  @ApiResponse({ status: 200, description: 'Log out successful' })
+  @ApiResponse({ status: 401, description: 'Unauthenticated' })
   @HttpCode(200)
+  @UseGuards(JwtAuthenticationGuard)
   async logOut(
     @Req() request: RequestWithUser,
     @Res({ passthrough: true }) res: Response,
