@@ -207,7 +207,6 @@ export class UserService {
       users,
       total: totalUsers,
     };
-    return users;
   }
 
   async getSignUpsStats(duration: 'daily' | 'weekly' | 'monthly') {
