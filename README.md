@@ -64,7 +64,7 @@
 
 ## 🚀 Live Docs <a name="live-demo"></a>
 
-- [Live Docs Link](https://chativerse-api.onrender.com/)
+- [Live Docs Link](https://task-manager-server-9fls.onrender.com/api)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
