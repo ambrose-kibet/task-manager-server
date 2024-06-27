@@ -7,6 +7,8 @@ import { AuthModule } from './auth/auth.module';
 import { EmailModule } from './email/email.module';
 import * as Joi from 'joi'; //DO NOT CONVERT TO DEFAULT IMPORT
 import { FileUploadModule } from './file-upload/file-upload.module';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -46,8 +48,19 @@ import { FileUploadModule } from './file-upload/file-upload.module';
     AuthModule,
     EmailModule,
     FileUploadModule,
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 20,
+      },
+    ]),
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}
