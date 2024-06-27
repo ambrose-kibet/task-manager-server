@@ -139,8 +139,8 @@ CLOUDINARY_CLOUD_NAME=//cloudinary cloud name
 CLOUDINARY_API_KEY=// cloudinary api key
 CLOUDINARY_API_SECRET=//cloudinary api secret
 
-JWT_AUTH_TOKEN_SECRET=//jwt auth token secret eg "my email secret"
-JWT_AUTH_TOKEN_EXPIRATION_TIME=//jwt auth token expiration time eg '1m'
+JWT_AUTH_TOKEN_SECRET=//jwt auth token secret eg "my auth token secret"
+JWT_AUTH_TOKEN_EXPIRATION_TIME=//jwt auth token expiration time eg '1m'(very short expiration time)
 ```
 
 ### Usage
