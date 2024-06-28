@@ -11,6 +11,7 @@ import { GithubAuthStrategy } from './strategies/github.strategy';
 import { DatabaseModule } from 'src/database/database.module';
 import { EmailModule } from 'src/email/email.module';
 import { TokenService } from './token.service';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { TokenService } from './token.service';
     }),
     DatabaseModule,
     EmailModule,
+    ConfigModule,
   ],
   controllers: [AuthController],
   providers: [

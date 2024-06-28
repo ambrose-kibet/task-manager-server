@@ -1,5 +1,5 @@
-import { AuthUser } from 'src/utils/types';
+import { User } from '@prisma/client';
 
 export class RequestWithUser extends Request {
-  user: AuthUser;
+  user: User;
 }
